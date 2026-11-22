@@ -6,7 +6,6 @@
 <title>Control de Inventario</title>
 
 <style>
-
 body{
     font-family: Arial, sans-serif;
     max-width: 1200px;
@@ -72,18 +71,15 @@ th{
 tr:nth-child(even){
     background:#f5f5f5;
 }
-
 </style>
-</head>
 
+</head>
 <body>
 
 <h2>📦 Control de Inventario</h2>
 
 <input type="text" id="codigo" placeholder="Código">
-
 <input type="text" id="descripcion" placeholder="Descripción">
-
 <input type="number" id="cantidad" placeholder="Cantidad">
 
 <br>
@@ -127,6 +123,19 @@ JSON.parse(localStorage.getItem("inventario")) || [];
 
 mostrarInventario();
 
+function obtenerFechaHora(){
+
+    const ahora = new Date();
+
+    const fecha =
+    ahora.toLocaleDateString("es-MX");
+
+    const hora =
+    ahora.toLocaleTimeString("es-MX");
+
+    return fecha + " " + hora;
+}
+
 function entradaInventario(){
 
     let codigo =
@@ -154,16 +163,15 @@ function entradaInventario(){
         producto.cantidad += cantidad;
 
         producto.ultimaEntrada =
-        new Date().toLocaleString();
+        obtenerFechaHora();
 
-    }
-    else{
+    }else{
 
         inventario.push({
             codigo: codigo,
             descripcion: descripcion,
             cantidad: cantidad,
-            ultimaEntrada: new Date().toLocaleString(),
+            ultimaEntrada: obtenerFechaHora(),
             ultimaSalida: ""
         });
     }
@@ -205,7 +213,7 @@ function salidaInventario(){
     producto.cantidad -= cantidad;
 
     producto.ultimaSalida =
-    new Date().toLocaleString();
+    obtenerFechaHora();
 
     guardarDatos();
 }
