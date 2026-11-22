@@ -1,27 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inventario</title>
 
 <style>
+
 body{
     font-family:Arial,sans-serif;
-    max-width:900px;
+    max-width:1000px;
     margin:auto;
     padding:20px;
+}
+
+h2{
+    text-align:center;
 }
 
 input{
     padding:10px;
     margin:5px;
-    width:220px;
+    width:200px;
 }
 
 button{
     padding:10px 15px;
     margin:5px;
     cursor:pointer;
+}
+
+.entrada{
+    background:green;
+    color:white;
+    border:none;
+}
+
+.salida{
+    background:red;
+    color:white;
+    border:none;
+}
+
+.eliminar{
+    background:#444;
+    color:white;
+    border:none;
 }
 
 table{
@@ -33,44 +57,52 @@ table{
 th,td{
     border:1px solid #ddd;
     padding:8px;
-    text-align:left;
+    text-align:center;
 }
 
 th{
     background:#0078D7;
     color:white;
 }
+
 </style>
 
 </head>
+
 <body>
 
-<h2>Control de Inventario</h2>
+<h2>📦 Control de Inventario</h2>
 
 <input type="text" id="codigo" placeholder="Código">
 <input type="text" id="descripcion" placeholder="Descripción">
 <input type="number" id="cantidad" placeholder="Cantidad">
 
-    <button onclick="entradaInventario()">
+<br>
+
+<button class="entrada" onclick="entradaInventario()">
 ➕ Entrada
 </button>
 
-<button onclick="salidaInventario()">
+<button class="salida" onclick="salidaInventario()">
 ➖ Salida
 </button>
 
 <h3>Inventario Actual</h3>
 
 <table>
-    <thead>
-        <tr>
-            <th>Código</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="tablaInventario"></tbody>
+
+<thead>
+<tr>
+<th>Código</th>
+<th>Descripción</th>
+<th>Cantidad</th>
+<th>Acciones</th>
+</tr>
+</thead>
+
+<tbody id="tablaInventario">
+</tbody>
+
 </table>
 
 <script>
@@ -82,22 +114,32 @@ mostrarInventario();
 
 function entradaInventario(){
 
-    let codigo=document.getElementById("codigo").value;
-    let descripcion=document.getElementById("descripcion").value;
-    let cantidad=parseInt(document.getElementById("cantidad").value);
+    let codigo =
+    document.getElementById("codigo").value.trim();
+
+    let descripcion =
+    document.getElementById("descripcion").value.trim();
+
+    let cantidad =
+    parseInt(document.getElementById("cantidad").value);
 
     if(!codigo || !descripcion || !cantidad){
-        alert("Complete todos los los campos");
+
+        alert("Complete todos los campos");
         return;
     }
 
-    let producto= inventario.find(
-        p=>p.codigo===codigo
+    let producto =
+    inventario.find(
+        p => p.codigo === codigo
     );
 
     if(producto){
+
         producto.cantidad += cantidad;
+
     }else{
+
         inventario.push({
             codigo:codigo,
             descripcion:descripcion,
@@ -105,70 +147,66 @@ function entradaInventario(){
         });
     }
 
-    localStorage.setItem(
-        "inventario",
-        JSON.stringify(inventario)
-    );
-
-    mostrarInventario();
+    guardar();
 }
 
 function salidaInventario(){
 
-    let codigo=document.getElementById("codigo").value;
-    let cantidad=parseInt(document.getElementById("cantidad").value);
+    let codigo =
+    document.getElementById("codigo").value.trim();
 
-    let producto= inventario.find(
-        p=>p.codigo===codigo
+    let cantidad =
+    parseInt(document.getElementById("cantidad").value);
+
+    let producto =
+    inventario.find(
+        p => p.codigo === codigo
     );
 
     if(!producto){
+
         alert("Producto no encontrado");
         return;
     }
 
     if(producto.cantidad < cantidad){
-        alert("No hay suficiente existencia");
+
+        alert("Existencia insuficiente");
         return;
     }
 
     producto.cantidad -= cantidad;
 
-    localStorage.setItem(
-        "inventario",
-        JSON.stringify(inventario)
-    );
-
-    mostrarInventario();
+    guardar();
 }
-    let codigo =
-    document.getElementById("codigo").value;
 
-    let descripcion =
-    document.getElementById("descripcion").value;
+function eliminarProducto(codigo){
 
-    let cantidad =
-    parseInt(
-        document.getElementById("cantidad").value
-    );
-
-    if(!codigo || !descripcion || !cantidad){
-        alert("Complete todos los campos");
+    if(!confirm("¿Eliminar producto?")){
         return;
     }
 
-    inventario.push({
-        codigo,
-        descripcion,
-        cantidad
-    });
+    inventario =
+    inventario.filter(
+        p => p.codigo !== codigo
+    );
+
+    guardar();
+}
+
+function guardar(){
 
     localStorage.setItem(
         "inventario",
         JSON.stringify(inventario)
     );
 
+    limpiar();
+
     mostrarInventario();
+}
+
+function limpiar(){
 
     document.getElementById("codigo").value="";
     document.getElementById("descripcion").value="";
@@ -180,9 +218,9 @@ function mostrarInventario(){
     let tabla =
     document.getElementById("tablaInventario");
 
-    tabla.innerHTML="";
+    tabla.innerHTML = "";
 
-    inventario.forEach(producto=>{
+    inventario.forEach(producto => {
 
         tabla.innerHTML += `
         <tr>
@@ -190,27 +228,12 @@ function mostrarInventario(){
             <td>${producto.descripcion}</td>
             <td>${producto.cantidad}</td>
             <td>
-<button onclick="eliminarProducto('${producto.codigo}')">
-🗑 Eliminar
-</button>
-</td>
-</tr>
-`;
-
-function eliminarProducto(codigo){
-
-    inventario =
-    inventario.filter(
-        p => p.codigo !== codigo
-    );
-
-    localStorage.setItem(
-        "inventario",
-        JSON.stringify(inventario)
-    );
-
-    mostrarInventario();
-}
+                <button
+                class="eliminar"
+                onclick="eliminarProducto('${producto.codigo}')">
+                🗑 Eliminar
+                </button>
+            </td>
         </tr>
         `;
     });
