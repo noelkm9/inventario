@@ -6,11 +6,12 @@
 <title>Control de Inventario</title>
 
 <style>
+
 body{
-    font-family:Arial,sans-serif;
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
 }
 
 h2{
@@ -20,24 +21,29 @@ h2{
 input{
     padding:10px;
     margin:5px;
-    width:200px;
+    width:220px;
 }
 
 button{
     padding:10px 15px;
     margin:5px;
-    cursor:pointer;
     border:none;
     border-radius:5px;
+    cursor:pointer;
 }
 
 .entrada{
-    background:green;
+    background:#28a745;
     color:white;
 }
 
 .salida{
-    background:red;
+    background:#dc3545;
+    color:white;
+}
+
+.exportar{
+    background:#0078D7;
     color:white;
 }
 
@@ -64,10 +70,10 @@ th{
 }
 
 tr:nth-child(even){
-    background:#f2f2f2;
+    background:#f5f5f5;
 }
-</style>
 
+</style>
 </head>
 
 <body>
@@ -90,6 +96,10 @@ tr:nth-child(even){
 ➖ Salida
 </button>
 
+<button class="exportar" onclick="exportarCSV()">
+📊 Exportar Excel
+</button>
+
 <h3>Inventario Actual</h3>
 
 <table>
@@ -99,6 +109,7 @@ tr:nth-child(even){
 <th>Código</th>
 <th>Descripción</th>
 <th>Cantidad</th>
+<th>Última Entrada</th>
 <th>Última Salida</th>
 <th>Acciones</th>
 </tr>
@@ -142,17 +153,22 @@ function entradaInventario(){
 
         producto.cantidad += cantidad;
 
-    }else{
+        producto.ultimaEntrada =
+        new Date().toLocaleString();
+
+    }
+    else{
 
         inventario.push({
-            codigo:codigo,
-            descripcion:descripcion,
-            cantidad:cantidad,
-            ultimaSalida:""
+            codigo: codigo,
+            descripcion: descripcion,
+            cantidad: cantidad,
+            ultimaEntrada: new Date().toLocaleString(),
+            ultimaSalida: ""
         });
     }
 
-    guardar();
+    guardarDatos();
 }
 
 function salidaInventario(){
@@ -191,7 +207,7 @@ function salidaInventario(){
     producto.ultimaSalida =
     new Date().toLocaleString();
 
-    guardar();
+    guardarDatos();
 }
 
 function eliminarProducto(codigo){
@@ -205,10 +221,10 @@ function eliminarProducto(codigo){
         p => p.codigo !== codigo
     );
 
-    guardar();
+    guardarDatos();
 }
 
-function guardar(){
+function guardarDatos(){
 
     localStorage.setItem(
         "inventario",
@@ -232,7 +248,7 @@ function mostrarInventario(){
     let tabla =
     document.getElementById("tablaInventario");
 
-    tabla.innerHTML="";
+    tabla.innerHTML = "";
 
     inventario.forEach(producto => {
 
@@ -241,17 +257,52 @@ function mostrarInventario(){
             <td>${producto.codigo}</td>
             <td>${producto.descripcion}</td>
             <td>${producto.cantidad}</td>
+            <td>${producto.ultimaEntrada || "-"}</td>
             <td>${producto.ultimaSalida || "-"}</td>
             <td>
                 <button
-                    class="eliminar"
-                    onclick="eliminarProducto('${producto.codigo}')">
-                    🗑 Eliminar
+                class="eliminar"
+                onclick="eliminarProducto('${producto.codigo}')">
+                🗑 Eliminar
                 </button>
             </td>
         </tr>
         `;
     });
+}
+
+function exportarCSV(){
+
+    let csv =
+    "Codigo,Descripcion,Cantidad,UltimaEntrada,UltimaSalida\n";
+
+    inventario.forEach(producto => {
+
+        csv +=
+        `"${producto.codigo}","${producto.descripcion}","${producto.cantidad}","${producto.ultimaEntrada || ""}","${producto.ultimaSalida || ""}"\n`;
+
+    });
+
+    let blob =
+    new Blob(
+        [csv],
+        {type:"text/csv;charset=utf-8;"}
+    );
+
+    let link =
+    document.createElement("a");
+
+    link.href =
+    URL.createObjectURL(blob);
+
+    link.download =
+    "Inventario.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
 }
 
 </script>
