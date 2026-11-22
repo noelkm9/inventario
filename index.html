@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Inventario</title>
+<style>
+body{
+font-family:Arial;
+max-width:500px;
+margin:auto;
+padding:20px;
+}
+input{
+width:100%;
+padding:10px;
+margin:5px;
+}
+button{
+padding:10px;
+width:100%;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Inventario</h2>
+
+<input id="codigo" placeholder="Código">
+
+<input id="descripcion" placeholder="Descripción">
+
+<input id="cantidad" type="number" placeholder="Cantidad">
+
+<button onclick="guardarEntrada()">
+Entrada
+</button>
+
+<button onclick="guardarSalida()">
+Salida
+</button>
+
+<script>
+
+function guardarEntrada(){
+
+alert(
+"Entrada registrada"
+);
+
+}
+
+function guardarSalida(){
+
+alert(
+"Salida registrada"
+);
+
+}
+
+</script>
+
+</body>
+</html>
