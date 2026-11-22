@@ -3,60 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <title>Inventario</title>
+
 <style>
 body{
-font-family:Arial;
-max-width:500px;
-margin:auto;
-padding:20px;
+    font-family:Arial,sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
 }
+
 input{
-width:100%;
-padding:10px;
-margin:5px;
+    padding:10px;
+    margin:5px;
+    width:220px;
 }
+
 button{
-padding:10px;
-width:100%;
-margin-top:10px;
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#0078D7;
+    color:white;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<h2>Inventario</h2>
+<h2>Control de Inventario</h2>
 
-<input id="codigo" placeholder="Código">
+<input type="text" id="codigo" placeholder="Código">
+<input type="text" id="descripcion" placeholder="Descripción">
+<input type="number" id="cantidad" placeholder="Cantidad">
 
-<input id="descripcion" placeholder="Descripción">
-
-<input id="cantidad" type="number" placeholder="Cantidad">
-
-<button onclick="guardarEntrada()">
-Entrada
+<button onclick="agregarProducto()">
+Guardar Producto
 </button>
 
-<button onclick="guardarSalida()">
-Salida
-</button>
+<h3>Inventario Actual</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+        </tr>
+    </thead>
+    <tbody id="tablaInventario"></tbody>
+</table>
 
 <script>
 
-function guardarEntrada(){
+let inventario =
+JSON.parse(localStorage.getItem("inventario")) || [];
 
-alert(
-"Entrada registrada"
-);
+mostrarInventario();
 
+function agregarProducto(){
+
+    let codigo =
+    document.getElementById("codigo").value;
+
+    let descripcion =
+    document.getElementById("descripcion").value;
+
+    let cantidad =
+    parseInt(
+        document.getElementById("cantidad").value
+    );
+
+    if(!codigo || !descripcion || !cantidad){
+        alert("Complete todos los campos");
+        return;
+    }
+
+    inventario.push({
+        codigo,
+        descripcion,
+        cantidad
+    });
+
+    localStorage.setItem(
+        "inventario",
+        JSON.stringify(inventario)
+    );
+
+    mostrarInventario();
+
+    document.getElementById("codigo").value="";
+    document.getElementById("descripcion").value="";
+    document.getElementById("cantidad").value="";
 }
 
-function guardarSalida(){
+function mostrarInventario(){
 
-alert(
-"Salida registrada"
-);
+    let tabla =
+    document.getElementById("tablaInventario");
 
+    tabla.innerHTML="";
+
+    inventario.forEach(producto=>{
+
+        tabla.innerHTML += `
+        <tr>
+            <td>${producto.codigo}</td>
+            <td>${producto.descripcion}</td>
+            <td>${producto.cantidad}</td>
+        </tr>
+        `;
+    });
 }
 
 </script>
