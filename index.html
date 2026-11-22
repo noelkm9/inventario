@@ -51,8 +51,12 @@ th{
 <input type="text" id="descripcion" placeholder="Descripción">
 <input type="number" id="cantidad" placeholder="Cantidad">
 
-<button onclick="agregarProducto()">
-Guardar Producto
+    <button onclick="entradaInventario()">
+➕ Entrada
+</button>
+
+<button onclick="salidaInventario()">
+➖ Salida
 </button>
 
 <h3>Inventario Actual</h3>
@@ -63,6 +67,7 @@ Guardar Producto
             <th>Código</th>
             <th>Descripción</th>
             <th>Cantidad</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody id="tablaInventario"></tbody>
@@ -75,8 +80,67 @@ JSON.parse(localStorage.getItem("inventario")) || [];
 
 mostrarInventario();
 
-function agregarProducto(){
+function entradaInventario(){
 
+    let codigo=document.getElementById("codigo").value;
+    let descripcion=document.getElementById("descripcion").value;
+    let cantidad=parseInt(document.getElementById("cantidad").value);
+
+    if(!codigo || !descripcion || !cantidad){
+        alert("Complete todos los los campos");
+        return;
+    }
+
+    let producto= inventario.find(
+        p=>p.codigo===codigo
+    );
+
+    if(producto){
+        producto.cantidad += cantidad;
+    }else{
+        inventario.push({
+            codigo:codigo,
+            descripcion:descripcion,
+            cantidad:cantidad
+        });
+    }
+
+    localStorage.setItem(
+        "inventario",
+        JSON.stringify(inventario)
+    );
+
+    mostrarInventario();
+}
+
+function salidaInventario(){
+
+    let codigo=document.getElementById("codigo").value;
+    let cantidad=parseInt(document.getElementById("cantidad").value);
+
+    let producto= inventario.find(
+        p=>p.codigo===codigo
+    );
+
+    if(!producto){
+        alert("Producto no encontrado");
+        return;
+    }
+
+    if(producto.cantidad < cantidad){
+        alert("No hay suficiente existencia");
+        return;
+    }
+
+    producto.cantidad -= cantidad;
+
+    localStorage.setItem(
+        "inventario",
+        JSON.stringify(inventario)
+    );
+
+    mostrarInventario();
+}
     let codigo =
     document.getElementById("codigo").value;
 
@@ -125,6 +189,28 @@ function mostrarInventario(){
             <td>${producto.codigo}</td>
             <td>${producto.descripcion}</td>
             <td>${producto.cantidad}</td>
+            <td>
+<button onclick="eliminarProducto('${producto.codigo}')">
+🗑 Eliminar
+</button>
+</td>
+</tr>
+`;
+
+function eliminarProducto(codigo){
+
+    inventario =
+    inventario.filter(
+        p => p.codigo !== codigo
+    );
+
+    localStorage.setItem(
+        "inventario",
+        JSON.stringify(inventario)
+    );
+
+    mostrarInventario();
+}
         </tr>
         `;
     });
