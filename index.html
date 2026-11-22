@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventario</title>
+<title>Control de Inventario</title>
 
 <style>
-
 body{
     font-family:Arial,sans-serif;
-    max-width:1000px;
+    max-width:1200px;
     margin:auto;
     padding:20px;
 }
@@ -28,24 +27,23 @@ button{
     padding:10px 15px;
     margin:5px;
     cursor:pointer;
+    border:none;
+    border-radius:5px;
 }
 
 .entrada{
     background:green;
     color:white;
-    border:none;
 }
 
 .salida{
     background:red;
     color:white;
-    border:none;
 }
 
 .eliminar{
-    background:#444;
+    background:#555;
     color:white;
-    border:none;
 }
 
 table{
@@ -65,6 +63,9 @@ th{
     color:white;
 }
 
+tr:nth-child(even){
+    background:#f2f2f2;
+}
 </style>
 
 </head>
@@ -74,7 +75,9 @@ th{
 <h2>📦 Control de Inventario</h2>
 
 <input type="text" id="codigo" placeholder="Código">
+
 <input type="text" id="descripcion" placeholder="Descripción">
+
 <input type="number" id="cantidad" placeholder="Cantidad">
 
 <br>
@@ -96,6 +99,7 @@ th{
 <th>Código</th>
 <th>Descripción</th>
 <th>Cantidad</th>
+<th>Última Salida</th>
 <th>Acciones</th>
 </tr>
 </thead>
@@ -123,7 +127,7 @@ function entradaInventario(){
     let cantidad =
     parseInt(document.getElementById("cantidad").value);
 
-    if(!codigo || !descripcion || !cantidad){
+    if(!codigo || !descripcion || isNaN(cantidad)){
 
         alert("Complete todos los campos");
         return;
@@ -143,7 +147,8 @@ function entradaInventario(){
         inventario.push({
             codigo:codigo,
             descripcion:descripcion,
-            cantidad:cantidad
+            cantidad:cantidad,
+            ultimaSalida:""
         });
     }
 
@@ -157,6 +162,12 @@ function salidaInventario(){
 
     let cantidad =
     parseInt(document.getElementById("cantidad").value);
+
+    if(!codigo || isNaN(cantidad)){
+
+        alert("Ingrese código y cantidad");
+        return;
+    }
 
     let producto =
     inventario.find(
@@ -177,12 +188,15 @@ function salidaInventario(){
 
     producto.cantidad -= cantidad;
 
+    producto.ultimaSalida =
+    new Date().toLocaleString();
+
     guardar();
 }
 
 function eliminarProducto(codigo){
 
-    if(!confirm("¿Eliminar producto?")){
+    if(!confirm("¿Desea eliminar este producto?")){
         return;
     }
 
@@ -201,12 +215,12 @@ function guardar(){
         JSON.stringify(inventario)
     );
 
-    limpiar();
+    limpiarCampos();
 
     mostrarInventario();
 }
 
-function limpiar(){
+function limpiarCampos(){
 
     document.getElementById("codigo").value="";
     document.getElementById("descripcion").value="";
@@ -218,7 +232,7 @@ function mostrarInventario(){
     let tabla =
     document.getElementById("tablaInventario");
 
-    tabla.innerHTML = "";
+    tabla.innerHTML="";
 
     inventario.forEach(producto => {
 
@@ -227,11 +241,12 @@ function mostrarInventario(){
             <td>${producto.codigo}</td>
             <td>${producto.descripcion}</td>
             <td>${producto.cantidad}</td>
+            <td>${producto.ultimaSalida || "-"}</td>
             <td>
                 <button
-                class="eliminar"
-                onclick="eliminarProducto('${producto.codigo}')">
-                🗑 Eliminar
+                    class="eliminar"
+                    onclick="eliminarProducto('${producto.codigo}')">
+                    🗑 Eliminar
                 </button>
             </td>
         </tr>
