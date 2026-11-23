@@ -1,319 +1,173 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Inventario</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Compartido</title>
 
-<style>
-body{
-    font-family: Arial, sans-serif;
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-h2{
-    text-align:center;
-}
-
-input{
-    padding:10px;
-    margin:5px;
-    width:220px;
-}
-
-button{
-    padding:10px 15px;
-    margin:5px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-.entrada{
-    background:#28a745;
-    color:white;
-}
-
-.salida{
-    background:#dc3545;
-    color:white;
-}
-
-.exportar{
-    background:#0078D7;
-    color:white;
-}
-
-.eliminar{
-    background:#555;
-    color:white;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
-}
-
-th{
-    background:#0078D7;
-    color:white;
-}
-
-tr:nth-child(even){
-    background:#f5f5f5;
-}
-</style>
-
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<h2>📦 Control de Inventario</h2>
+    <!-- LOGIN -->
 
-<input type="text" id="codigo" placeholder="Código">
-<input type="text" id="descripcion" placeholder="Descripción">
-<input type="number" id="cantidad" placeholder="Cantidad">
+    <div id="loginContainer" class="card">
 
-<br>
+        <h1>📦 Inventario Compartido</h1>
 
-<button class="entrada" onclick="entradaInventario()">
-➕ Entrada
-</button>
+        <input
+            type="email"
+            id="email"
+            placeholder="Correo electrónico">
 
-<button class="salida" onclick="salidaInventario()">
-➖ Salida
-</button>
+        <input
+            type="password"
+            id="password"
+            placeholder="Contraseña">
 
-<button class="exportar" onclick="exportarCSV()">
-📊 Exportar Excel
-</button>
+        <button id="btnLogin">
+            Ingresar
+        </button>
 
-<h3>Inventario Actual</h3>
+    </div>
 
-<table>
+    <!-- APP -->
 
-<thead>
-<tr>
-<th>Código</th>
-<th>Descripción</th>
-<th>Cantidad</th>
-<th>Última Entrada</th>
-<th>Última Salida</th>
-<th>Acciones</th>
-</tr>
-</thead>
+    <div id="appContainer" style="display:none;">
 
-<tbody id="tablaInventario">
-</tbody>
+        <header>
 
-</table>
+            <h1>📦 Control de Inventario</h1>
 
-<script>
+            <div>
 
-let inventario =
-JSON.parse(localStorage.getItem("inventario")) || [];
+                <span id="usuarioActual"></span>
 
-mostrarInventario();
-
-function obtenerFechaHora(){
-
-    const ahora = new Date();
-
-    const fecha =
-    ahora.toLocaleDateString("es-MX");
-
-    const hora =
-    ahora.toLocaleTimeString("es-MX");
-
-    return fecha + " " + hora;
-}
-
-function entradaInventario(){
-
-    let codigo =
-    document.getElementById("codigo").value.trim();
-
-    let descripcion =
-    document.getElementById("descripcion").value.trim();
-
-    let cantidad =
-    parseInt(document.getElementById("cantidad").value);
-
-    if(!codigo || !descripcion || isNaN(cantidad)){
-
-        alert("Complete todos los campos");
-        return;
-    }
-
-    let producto =
-    inventario.find(
-        p => p.codigo === codigo
-    );
-
-    if(producto){
-
-        producto.cantidad += cantidad;
-
-        producto.ultimaEntrada =
-        obtenerFechaHora();
-
-    }else{
-
-        inventario.push({
-            codigo: codigo,
-            descripcion: descripcion,
-            cantidad: cantidad,
-            ultimaEntrada: obtenerFechaHora(),
-            ultimaSalida: ""
-        });
-    }
-
-    guardarDatos();
-}
-
-function salidaInventario(){
-
-    let codigo =
-    document.getElementById("codigo").value.trim();
-
-    let cantidad =
-    parseInt(document.getElementById("cantidad").value);
-
-    if(!codigo || isNaN(cantidad)){
-
-        alert("Ingrese código y cantidad");
-        return;
-    }
-
-    let producto =
-    inventario.find(
-        p => p.codigo === codigo
-    );
-
-    if(!producto){
-
-        alert("Producto no encontrado");
-        return;
-    }
-
-    if(producto.cantidad < cantidad){
-
-        alert("Existencia insuficiente");
-        return;
-    }
-
-    producto.cantidad -= cantidad;
-
-    producto.ultimaSalida =
-    obtenerFechaHora();
-
-    guardarDatos();
-}
-
-function eliminarProducto(codigo){
-
-    if(!confirm("¿Desea eliminar este producto?")){
-        return;
-    }
-
-    inventario =
-    inventario.filter(
-        p => p.codigo !== codigo
-    );
-
-    guardarDatos();
-}
-
-function guardarDatos(){
-
-    localStorage.setItem(
-        "inventario",
-        JSON.stringify(inventario)
-    );
-
-    limpiarCampos();
-
-    mostrarInventario();
-}
-
-function limpiarCampos(){
-
-    document.getElementById("codigo").value="";
-    document.getElementById("descripcion").value="";
-    document.getElementById("cantidad").value="";
-}
-
-function mostrarInventario(){
-
-    let tabla =
-    document.getElementById("tablaInventario");
-
-    tabla.innerHTML = "";
-
-    inventario.forEach(producto => {
-
-        tabla.innerHTML += `
-        <tr>
-            <td>${producto.codigo}</td>
-            <td>${producto.descripcion}</td>
-            <td>${producto.cantidad}</td>
-            <td>${producto.ultimaEntrada || "-"}</td>
-            <td>${producto.ultimaSalida || "-"}</td>
-            <td>
-                <button
-                class="eliminar"
-                onclick="eliminarProducto('${producto.codigo}')">
-                🗑 Eliminar
+                <button id="btnLogout">
+                    Cerrar sesión
                 </button>
-            </td>
-        </tr>
-        `;
-    });
-}
 
-function exportarCSV(){
+            </div>
 
-    let csv =
-    "Codigo,Descripcion,Cantidad,UltimaEntrada,UltimaSalida\n";
+        </header>
 
-    inventario.forEach(producto => {
+        <!-- DASHBOARD -->
 
-        csv +=
-        `"${producto.codigo}","${producto.descripcion}","${producto.cantidad}","${producto.ultimaEntrada || ""}","${producto.ultimaSalida || ""}"\n`;
+        <section class="dashboard">
 
-    });
+            <div class="dashboardCard">
+                <h3>Total Productos</h3>
+                <p id="totalProductos">0</p>
+            </div>
 
-    let blob =
-    new Blob(
-        [csv],
-        {type:"text/csv;charset=utf-8;"}
-    );
+            <div class="dashboardCard">
+                <h3>Total Piezas</h3>
+                <p id="totalPiezas">0</p>
+            </div>
 
-    let link =
-    document.createElement("a");
+        </section>
 
-    link.href =
-    URL.createObjectURL(blob);
+        <!-- FORMULARIO -->
 
-    link.download =
-    "Inventario.csv";
+        <section class="card">
 
-    document.body.appendChild(link);
+            <input
+                type="text"
+                id="codigo"
+                placeholder="Código">
 
-    link.click();
+            <input
+                type="text"
+                id="descripcion"
+                placeholder="Descripción">
 
-    document.body.removeChild(link);
-}
+            <input
+                type="number"
+                id="cantidad"
+                placeholder="Cantidad">
 
-</script>
+            <button id="btnEntrada">
+                ➕ Entrada
+            </button>
+
+            <button id="btnSalida">
+                ➖ Salida
+            </button>
+
+            <button id="btnExportar">
+                📊 Exportar CSV
+            </button>
+
+        </section>
+
+        <!-- BUSCADOR -->
+
+        <section class="card">
+
+            <input
+                type="text"
+                id="buscar"
+                placeholder="Buscar producto">
+
+        </section>
+
+        <!-- TABLA -->
+
+        <section class="card">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Último Movimiento</th>
+                        <th>Usuario</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaInventario">
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- HISTORIAL -->
+
+        <section class="card">
+
+            <h2>Historial de Movimientos</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaHistorial">
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </div>
+
+    <script type="module" src="app.js"></script>
 
 </body>
 </html>
